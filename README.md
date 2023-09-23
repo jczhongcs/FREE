@@ -18,6 +18,8 @@ This process will generate feature files, msalign files, and a list of env files
 3.Proteoforms Search:
 Employ TopPIC for performing the search for proteoforms.
 This step requires the protein database (*.fasta) file, msalign files, and feature files.
+
+
 "Genarating Traindata"
 1.Rename PrSM Files:
 FREE/Exec/change_xml_files.py
@@ -31,8 +33,12 @@ FREE/Exec/add_feature.py
 FREE/Exec/genarate_training_data.py
 6.Generate HDF5 file
 FREE/Exec/create_hdf5_file.py
+
+
 "Train Model"
 Use the hdf5 file to train the model: FREE/Exec/train_model_hdf5.py
+
+
 "Test model"
 1.the evaluation criteria for binary classification:
 FREE/Exec/test_model.py
