@@ -43,71 +43,43 @@ y_train= numpy.array(list(y_train))
 #test_model_util.get_label_distribution(output_dir, x_train, y_train)
 
 ## Evaluate model performance on test data
-model1 = load_model(os.path.join(output_dir, "model.h5"))
-model1.compile(loss = "binary_crossentropy", metrics=['accuracy'], optimizer=keras.optimizers.Adam())
-history = model1.evaluate(x_train1, y_train, verbose=0)
-predictions1 = model1.predict(x_train1, verbose=0)
-
-predictions1 = numpy.nan_to_num(predictions1, nan=0)
-#predictions1 = [x for x in predictions1 if not math.isnan(x)]
-#x = float('nan')
-#predictions_labels1=[]
-
-predictions_labels1 = [round(x[0]) for x in predictions1]
-balanced_accuracy1 = balanced_accuracy_score(y_train, predictions_labels1, adjusted=False)
-
-
-
-x_train2 = hdf5_file['test_data'][:,:,0:5]
-#y_train2 = hdf5_file['test_labels']
-
-
-model2 = load_model("model.h5")
-model2.compile(loss = "binary_crossentropy", metrics=['accuracy'], optimizer=keras.optimizers.Adam())
-history = model2.evaluate(x_train2, y_train, verbose=0)
-predictions2 = model2.predict(x_train2, verbose=0)
-#predictions2 = [x for x in predictions2 if not math.isnan(x)]
-predictions2 = numpy.nan_to_num(predictions2, nan=0)
-#predictions_labels2=[]
-#for x in predictions2:
-
-    #x = float(str(item).split('/')[0])
-
-    #if not math.isnan(x[0]):
-        #predictions_labels2.append(round(x[0]))
-    #else:
-        #predictions_labels2.append(0)
-predictions_labels2 = [round(x[0]) for x in predictions2]
-balanced_accuracy2 = balanced_accuracy_score(y_train, predictions_labels2, adjusted=False)
-
-print("** Overall Performance **")
-print("Loss:", history[0], "Accuracy:", history[1])
-print("Balanced Accuracy_EnvCNN:", balanced_accuracy2)
-print("Balanced Accuracy_EFRIEE:", balanced_accuracy1)
-test_model_util.generate_roc_curve_test(output_dir, predictions1, predictions2, y_train, file_name="ROC_Curve_Test.png")
-x_train = hdf5_file['test_data'][:,:,0:9]
-y_train = hdf5_file['test_labels']
-z_train = hdf5_file['test_params']
-
-### Plot labels distribution
-#test_model_util.get_anno_dist(output_dir, x_train, y_train, z_train)
-
-## Accuracy and Loss for Charge states
-x_train = numpy.stack(list(x_train))
-y_train = numpy.array(list(y_train))
-#test_model_util.get_label_distribution(output_dir, x_train, y_train)#x_train为测试数据，y_train为测试标签
-
-## Evaluate model performance on test data
 model = load_model(os.path.join(output_dir, "model.h5"))
-#model = load_model("model.h5")
 model.compile(loss = "binary_crossentropy", metrics=['accuracy'], optimizer=keras.optimizers.Adam())
 history = model.evaluate(x_train, y_train, verbose=0)
 predictions = model.predict(x_train, verbose=0)
-predictions_labels = [round(x[0]) for x in predictions]
 
-
+predictions_labels= [round(x[0]) for x in predictions]
 balanced_accuracy = balanced_accuracy_score(y_train, predictions_labels, adjusted=False)
+
+C = confusion_matrix(y_train, predictions_labels)
+print(C)
+res=0
+sum=0
+res=C[0][0]+C[1][1]
+sum=res+C[0][1]+C[1][0]
+#print(sum(C))
+accuracy_value=res/sum 
+
+
+tp=0
+tp=C[1][1]
+fn=0
+fn=C[0][1]
+fp=0
+fp=C[1][0]
+precison=0
+recall=0
+precision=tp/(tp+fp)
+recall=tp/(tp+fn)
+F_score=2*precision*recall/(precision+recall)
+
 print("** Overall Performance **")
-print("Loss:", history[0], "Accuracy:", history[1])
+#print("Loss:", history[0], "Accuracy:", history[1])
+print("Accuracy:", accuracy_value)
 print("Balanced Accuracy:", balanced_accuracy)
+print("Precision:", precision)
+print("Recall:", recall)
+print("F_score:", F_score)
+#test_model_util.generate_roc_curve(output_dir, predictions, y_train, file_name="ROC_Curve_Test.png")
 test_model_util.generate_roc_curve_test(output_dir, predictions, y_train, file_name="ROC_Curve_Test.png")
+
